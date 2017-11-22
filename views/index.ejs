@@ -3,9 +3,49 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/javascripts/jquery.js"></script>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <input type="file" id="upload"/>
+    <script>
+        function uploadFile (url, blob, callback) {
+            debugger
+            var perFileSize = 20; // 2 * 1024 * 1024
+            var blobParts = Math.ceil(blob.size / perFileSize);
+            for (var i = 0; i < blobParts; i++) {
+                (function (i) {
+                    var fd = new FormData();
+                    var _blob = blob.slice(i * perFileSize, (i + 1) * perFileSize);
+                    fd.append('_blob', _blob);
+                    fd.append('filename', blob.name);
+                    fd.append('index', i + 1);
+                    fd.append('total', blobParts);
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: fd,
+                        processData: false,
+                        contentType: false
+                    }).done(function (res) {
+                        console.log('upload status: ');
+                        console.log('this is ' + (i + 1) + 'part, total ' + blobParts + ' part(s).');
+                        console.log(res);
+                        if (res.statusCode === 200) {
+                            callback(null, res);
+                        }
+                    }).fail(function (err) {
+                        callback(err, null);
+                    });
+                })(i)
+            }
+        }
+        $('#upload').on('change', function (e) {
+            var file = e.target.files[0];
+            uploadFile('/upload', file, function (err, res) {
+                if (err) { return console.log(err); }
+                console.log('upload successfully!');
+            });
+        });
+    </script>
   </body>
 </html>
