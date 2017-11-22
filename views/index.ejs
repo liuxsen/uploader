@@ -9,8 +9,7 @@
     <input type="file" id="upload"/>
     <script>
         function uploadFile (url, blob, callback) {
-            debugger
-            var perFileSize = 20; // 2 * 1024 * 1024
+            var perFileSize = 20000; // 2 * 1024 * 1024
             var blobParts = Math.ceil(blob.size / perFileSize);
             for (var i = 0; i < blobParts; i++) {
                 (function (i) {
